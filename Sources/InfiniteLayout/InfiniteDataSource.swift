@@ -8,6 +8,9 @@
 import UIKit
 
 class InfiniteDataSources {
+    private enum Constants {
+        static let spaceAfterSecondSection: CGFloat = 240
+    }
 
     static func section(from infiniteSection: Int, numberOfSections: Int) -> Int {
         return infiniteSection % numberOfSections
@@ -44,7 +47,7 @@ class InfiniteDataSources {
         var contentSize = CGFloat(numberOfItems) * itemSize
         contentSize += CGFloat(numberOfItems - 1) * itemSpace
         contentSize += CGFloat(numberOfSections) * sectionSpace
-        contentSize += CGFloat(numberOfSections - 1) * FuboGlobals.CarouselView.spaceAfterSecondSection
+        contentSize += CGFloat(numberOfSections - 1) * Constants.spaceAfterSecondSection
 
         if contentSize < InfiniteLayout.minimumContentSize(forScrollDirection: scrollDirection) {
             return 1

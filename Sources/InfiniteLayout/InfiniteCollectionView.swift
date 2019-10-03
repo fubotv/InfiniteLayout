@@ -13,6 +13,12 @@ import UIKit
     @objc optional func infiniteCollectionView(_ infiniteCollectionView: InfiniteCollectionView, didChangeCenteredIndexPath from: IndexPath?, to: IndexPath?)
 }
 
+private extension UICollectionView {
+    func hasCellAtIndexPath(_ indexPath: IndexPath) -> Bool {
+        return indexPath.section < self.numberOfSections && indexPath.row < self.numberOfItems(inSection: indexPath.section)
+    }
+}
+
 open class InfiniteCollectionView: UICollectionView {
 
     lazy var dataSourceProxy = InfiniteCollectionViewDataSourceProxy(collectionView: self)
@@ -224,16 +230,10 @@ open class InfiniteCollectionView: UICollectionView {
     }
 
     open override func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
-        let warning = """
-            Are you sure about it? It can have weird behavior for Infinite Layout.
-            You may want to use selectItem(at:animated:scrollPosition: direction:)
-            """
-        LogUtils.logger.warning(warning)
         super.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition)
     }
 
     func resetFocus() {
-        crashLog()
         lastFocusedIndexPath = nil
     }
 
@@ -311,9 +311,9 @@ extension InfiniteCollectionView: UICollectionViewDelegate {
         if let preferredVisibleIndexPath = infiniteLayout.preferredVisibleLayoutAttributes()?.indexPath,
             centeredIndexPath != preferredVisibleIndexPath,
             hasCellAtIndexPath(preferredVisibleIndexPath) {
-
+            let previousCenteredIndexPath = self.centeredIndexPath
             centeredIndexPath = preferredVisibleIndexPath
-            infiniteDelegate?.infiniteCollectionView?(self, didChangeCenteredIndexPath: preferredVisibleIndexPath)
+            infiniteDelegate?.infiniteCollectionView?(self, didChangeCenteredIndexPath: previousCenteredIndexPath, to: centeredIndexPath)
         }
     }
 
