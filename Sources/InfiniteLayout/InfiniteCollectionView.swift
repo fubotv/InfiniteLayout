@@ -1,3 +1,23 @@
+//Copyright (c) 2017 Arnoymous <ineox@me.com>
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in
+//all copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//THE SOFTWARE.
+
 //
 //  InfiniteCollectionView.swift
 //  InfiniteLayout
@@ -10,13 +30,8 @@ import UIKit
 
 @objc public protocol InfiniteCollectionViewDelegate {
 
-    @objc optional func infiniteCollectionView(_ infiniteCollectionView: InfiniteCollectionView, didChangeCenteredIndexPath from: IndexPath?, to: IndexPath?)
-}
-
-private extension UICollectionView {
-    func hasCellAtIndexPath(_ indexPath: IndexPath) -> Bool {
-        return indexPath.section < self.numberOfSections && indexPath.row < self.numberOfItems(inSection: indexPath.section)
-    }
+    @objc optional func infiniteCollectionView(_ infiniteCollectionView: InfiniteCollectionView,
+                                               didChangeCenteredIndexPath centeredIndexPath: IndexPath?)
 }
 
 open class InfiniteCollectionView: UICollectionView {
@@ -29,12 +44,12 @@ open class InfiniteCollectionView: UICollectionView {
     open private(set) var centeredIndexPath: IndexPath?
     open var preferredCenteredIndexPath: IndexPath? = IndexPath(item: 0, section: 0)
     private var lastFocusedIndexPath: IndexPath?
-    open var shouldLayoutSubviews = true
+    var shouldLayoutSubviews = true
 
     var forwardDelegate: Bool { return true }
     var _contentSize: CGSize?
-    
-    override open weak var delegate: UICollectionViewDelegate? {
+
+    override open var delegate: UICollectionViewDelegate? {
         get { return super.delegate }
         set {
             guard forwardDelegate else {
@@ -53,8 +68,8 @@ open class InfiniteCollectionView: UICollectionView {
             super.delegate = delegate
         }
     }
-    
-    override open weak var dataSource: UICollectionViewDataSource? {
+
+    override open var dataSource: UICollectionViewDataSource? {
         get { return super.dataSource }
         set {
             guard forwardDelegate else {
@@ -128,7 +143,7 @@ open class InfiniteCollectionView: UICollectionView {
         }
     }
 
-    open func scrollToItem(at indexPath: IndexPath, animated: Bool) {
+    func scrollToItem(at indexPath: IndexPath, animated: Bool) {
         if infiniteLayout.isEnabled {
             let point = CGPoint(x: 250, y: contentOffset.y)
             let rect = (collectionViewLayout as? InfiniteLayout)?.layoutAttributesForItem(at: indexPath, page: point)?.frame ?? .zero
@@ -158,7 +173,7 @@ open class InfiniteCollectionView: UICollectionView {
         }
     }
 
-    open func selectItem(at indexPath: IndexPath,
+    func selectItem(at indexPath: IndexPath,
                     animated: Bool,
                     scrollPosition: UICollectionView.ScrollPosition,
                     direction: UISwipeGestureRecognizer.Direction = .right) {
@@ -230,11 +245,16 @@ open class InfiniteCollectionView: UICollectionView {
     }
 
     open override func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
-        guard let indexPath = indexPath else { return }
-        selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition, direction: .right)
+        let warning = """
+            Are you sure about it? It can have weird behavior for Infinite Layout.
+            You may want to use selectItem(at:animated:scrollPosition: direction:)
+            """
+        LogUtils.logger.warning(warning)
+        super.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition)
     }
 
-    open func resetFocus() {
+    func resetFocus() {
+        crashLog()
         lastFocusedIndexPath = nil
     }
 
@@ -312,9 +332,9 @@ extension InfiniteCollectionView: UICollectionViewDelegate {
         if let preferredVisibleIndexPath = infiniteLayout.preferredVisibleLayoutAttributes()?.indexPath,
             centeredIndexPath != preferredVisibleIndexPath,
             hasCellAtIndexPath(preferredVisibleIndexPath) {
-            let previousCenteredIndexPath = self.centeredIndexPath
+
             centeredIndexPath = preferredVisibleIndexPath
-            infiniteDelegate?.infiniteCollectionView?(self, didChangeCenteredIndexPath: previousCenteredIndexPath, to: centeredIndexPath)
+            infiniteDelegate?.infiniteCollectionView?(self, didChangeCenteredIndexPath: preferredVisibleIndexPath)
         }
     }
 

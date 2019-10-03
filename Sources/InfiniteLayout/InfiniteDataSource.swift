@@ -1,3 +1,23 @@
+//Copyright (c) 2017 Arnoymous <ineox@me.com>
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in
+//all copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//THE SOFTWARE.
+
 //
 //  InfiniteDataSources.swift
 //  InfiniteLayout
@@ -8,9 +28,6 @@
 import UIKit
 
 class InfiniteDataSources {
-    private enum Constants {
-        static let spaceAfterSecondSection: CGFloat = 240
-    }
 
     static func section(from infiniteSection: Int, numberOfSections: Int) -> Int {
         return infiniteSection % numberOfSections
@@ -24,11 +41,8 @@ class InfiniteDataSources {
                          section: self.section(from: infiniteIndexPath.section,
                                                numberOfSections: numberOfSections))
     }
-    
-    static func multiplier(estimatedItemSize: CGSize, enabled: Bool) -> Int {
-        guard enabled else {
-            return 1
-        }
+
+    static func multiplier(estimatedItemSize: CGSize) -> Int {
         let min = Swift.min(estimatedItemSize.width, estimatedItemSize.height)
         let count = ceil(InfiniteLayout.minimumContentSize / min)
         return Int(count)
@@ -47,7 +61,7 @@ class InfiniteDataSources {
         var contentSize = CGFloat(numberOfItems) * itemSize
         contentSize += CGFloat(numberOfItems - 1) * itemSpace
         contentSize += CGFloat(numberOfSections) * sectionSpace
-        contentSize += CGFloat(numberOfSections - 1) * Constants.spaceAfterSecondSection
+        contentSize += CGFloat(numberOfSections - 1) * FuboGlobals.CarouselView.spaceAfterSecondSection
 
         if contentSize < InfiniteLayout.minimumContentSize(forScrollDirection: scrollDirection) {
             return 1
