@@ -129,7 +129,7 @@ open class InfiniteCollectionView: UICollectionView {
     }
 
     open func scrollToItem(at indexPath: IndexPath, animated: Bool) {
-        if infiniteLayout.isEnabled {
+        if infiniteLayout.hasValidLayout {
             let point = CGPoint(x: 250, y: contentOffset.y)
             let rect = (collectionViewLayout as? InfiniteLayout)?.layoutAttributesForItem(at: indexPath, page: point)?.frame ?? .zero
             let offset = CGPoint(x: rect.origin.x - 90, y: contentOffset.y)
@@ -140,7 +140,7 @@ open class InfiniteCollectionView: UICollectionView {
     }
 
     private func scrollToCenterToItem(at indexPath: IndexPath, animated: Bool) {
-        if infiniteLayout.isEnabled {
+        if infiniteLayout.hasValidLayout {
             let point = CGPoint(x: 250, y: contentOffset.y)
             let rect = (collectionViewLayout as? InfiniteLayout)?.layoutAttributesForItem(at: indexPath, page: point)?.frame ?? .zero
             let centerOffset = center.x - (rect.size.width/2)
@@ -163,7 +163,7 @@ open class InfiniteCollectionView: UICollectionView {
                     scrollPosition: UICollectionView.ScrollPosition,
                     direction: UISwipeGestureRecognizer.Direction = .right) {
 
-        if infiniteLayout.isEnabled {
+        if infiniteLayout.hasValidLayout {
             var selectedIndexPath: IndexPath?
             if let focusedCell = UIScreen.main.focusedView as? UICollectionViewCell, focusedCell.isDescendant(of: self) {
                 selectedIndexPath = self.indexPath(for: focusedCell)
@@ -312,7 +312,7 @@ extension InfiniteCollectionView: UICollectionViewDelegate {
         if let preferredVisibleIndexPath = infiniteLayout.preferredVisibleLayoutAttributes()?.indexPath,
             centeredIndexPath != preferredVisibleIndexPath,
             hasCellAtIndexPath(preferredVisibleIndexPath) {
-            let previousCenteredIndexPath = self.centeredIndexPath
+            let previousCenteredIndexPath = centeredIndexPath
             centeredIndexPath = preferredVisibleIndexPath
             infiniteDelegate?.infiniteCollectionView?(self, didChangeCenteredIndexPath: previousCenteredIndexPath, to: centeredIndexPath)
         }
@@ -320,7 +320,7 @@ extension InfiniteCollectionView: UICollectionViewDelegate {
 
     // MARK: Loop
     func loopCollectionViewIfNeeded() {
-        self.infiniteLayout.loopCollectionViewIfNeeded()
+        infiniteLayout.loopCollectionViewIfNeeded()
     }
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
