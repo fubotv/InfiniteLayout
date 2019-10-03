@@ -29,7 +29,7 @@ open class InfiniteCollectionView: UICollectionView {
     open private(set) var centeredIndexPath: IndexPath?
     open var preferredCenteredIndexPath: IndexPath? = IndexPath(item: 0, section: 0)
     private var lastFocusedIndexPath: IndexPath?
-    var shouldLayoutSubviews = true
+    open var shouldLayoutSubviews = true
 
     var forwardDelegate: Bool { return true }
     var _contentSize: CGSize?
@@ -128,7 +128,7 @@ open class InfiniteCollectionView: UICollectionView {
         }
     }
 
-    func scrollToItem(at indexPath: IndexPath, animated: Bool) {
+    open func scrollToItem(at indexPath: IndexPath, animated: Bool) {
         if infiniteLayout.isEnabled {
             let point = CGPoint(x: 250, y: contentOffset.y)
             let rect = (collectionViewLayout as? InfiniteLayout)?.layoutAttributesForItem(at: indexPath, page: point)?.frame ?? .zero
@@ -158,7 +158,7 @@ open class InfiniteCollectionView: UICollectionView {
         }
     }
 
-    func selectItem(at indexPath: IndexPath,
+    open func selectItem(at indexPath: IndexPath,
                     animated: Bool,
                     scrollPosition: UICollectionView.ScrollPosition,
                     direction: UISwipeGestureRecognizer.Direction = .right) {
@@ -230,10 +230,11 @@ open class InfiniteCollectionView: UICollectionView {
     }
 
     open override func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
-        super.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition)
+        guard let indexPath = indexPath else { return }
+        selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition, direction: .right)
     }
 
-    func resetFocus() {
+    open func resetFocus() {
         lastFocusedIndexPath = nil
     }
 
