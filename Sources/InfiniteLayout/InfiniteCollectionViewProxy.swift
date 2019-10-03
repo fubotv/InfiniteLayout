@@ -8,7 +8,7 @@
 import UIKit
 
 class InfiniteCollectionViewProxy<T: NSObjectProtocol>: CocoaProxy {
-    
+
     var collectionView: InfiniteCollectionView! {
         get { return self.proxies.first as? InfiniteCollectionView }
         set {
@@ -18,7 +18,7 @@ class InfiniteCollectionViewProxy<T: NSObjectProtocol>: CocoaProxy {
             self.proxies.insert(newValue, at: 0)
         }
     }
-    
+
     var delegate: T? {
         get {
             guard self.proxies.count > 1 else {
@@ -35,28 +35,30 @@ class InfiniteCollectionViewProxy<T: NSObjectProtocol>: CocoaProxy {
             self.proxies.append(delegate)
         }
     }
-    
+
     override func proxies(for aSelector: Selector) -> [NSObjectProtocol] {
          return super.proxies(for: aSelector).reversed()
     }
-    
+
     init(collectionView: InfiniteCollectionView) {
         super.init(proxies: [])
         self.collectionView = collectionView
     }
-    
+
     deinit {
         self.proxies.removeAll()
     }
 }
 
 class InfiniteCollectionViewDelegateProxy: InfiniteCollectionViewProxy<UICollectionViewDelegate>, UICollectionViewDelegate {
-    
+
     override func proxies(for aSelector: Selector) -> [NSObjectProtocol] {
         return super.proxies(for: aSelector)
             .first { proxy in
                 guard !(aSelector == #selector(UIScrollViewDelegate.scrollViewDidScroll(_:)) ||
-                    aSelector == #selector(UIScrollViewDelegate.scrollViewWillEndDragging(_:withVelocity:targetContentOffset:))) else {
+                    aSelector == #selector(UIScrollViewDelegate.scrollViewWillEndDragging(_:withVelocity:targetContentOffset:)) ||
+                    aSelector == #selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:)) ||
+                    aSelector == #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:))) else {
                         return proxy is InfiniteCollectionView
                 }
                 return true
@@ -65,7 +67,7 @@ class InfiniteCollectionViewDelegateProxy: InfiniteCollectionViewProxy<UICollect
 }
 
 class InfiniteCollectionViewDataSourceProxy: InfiniteCollectionViewProxy<UICollectionViewDataSource>, UICollectionViewDataSource {
-    
+
     override func proxies(for aSelector: Selector) -> [NSObjectProtocol] {
         return super.proxies(for: aSelector)
             .first { proxy in
@@ -76,11 +78,11 @@ class InfiniteCollectionViewDataSourceProxy: InfiniteCollectionViewProxy<UIColle
                 return true
             }.flatMap { [$0] } ?? []
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.collectionView.collectionView(collectionView, numberOfItemsInSection: section)
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         return self.delegate?.collectionView(collectionView, cellForItemAt: indexPath) ??
             self.collectionView.collectionView(collectionView, cellForItemAt: indexPath)
