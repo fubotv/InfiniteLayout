@@ -134,6 +134,12 @@ open class InfiniteCollectionView: UICollectionView {
             let rect = (collectionViewLayout as? InfiniteLayout)?.layoutAttributesForItem(at: indexPath, page: point)?.frame ?? .zero
             let offset = CGPoint(x: rect.origin.x - 90, y: contentOffset.y)
             setContentOffset(offset, animated: animated)
+            lastFocusedIndexPath = indexPath
+            if let focusedCell = UIScreen.main.focusedView as? UICollectionViewCell,
+                focusedCell.isDescendant(of: self) {
+                setNeedsFocusUpdate()
+                updateFocusIfNeeded()
+            }
         } else {
             setContentOffset(CGPoint(x: -90, y: contentOffset.y), animated: animated)
         }
@@ -146,6 +152,13 @@ open class InfiniteCollectionView: UICollectionView {
             let centerOffset = center.x - (rect.size.width/2)
             let offset = CGPoint(x: rect.origin.x - centerOffset, y: contentOffset.y)
             setContentOffset(offset, animated: animated)
+            lastFocusedIndexPath = indexPath
+            if let focusedCell = UIScreen.main.focusedView as? UICollectionViewCell,
+                focusedCell.isDescendant(of: self) {
+                setNeedsFocusUpdate()
+                updateFocusIfNeeded()
+            }
+
         } else {
             super.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: animated)
         }
