@@ -25,6 +25,24 @@ class InfiniteDataSources {
                                                numberOfSections: numberOfSections))
     }
     
+    static func closestIndexPath(
+        _ realIndexPath: IndexPath,
+        to markedIndexPath: IndexPath,
+        numberOfSections: Int,
+        numberOfItems: Int
+    ) -> IndexPath {
+        guard numberOfSections > 1 else {
+            let itemMultiplier = Int(markedIndexPath.item / numberOfItems)
+            return IndexPath(item: realIndexPath.item + (itemMultiplier * numberOfItems), section: 0)
+        }
+        
+        let sectionMultiplier = Int(markedIndexPath.section / numberOfSections)
+        return IndexPath(
+            item: realIndexPath.item,
+            section: realIndexPath.section + (sectionMultiplier*numberOfSections)
+        )
+    }
+    
     static func multiplier(estimatedItemSize: CGSize, enabled: Bool) -> Int {
         guard enabled else {
             return 1

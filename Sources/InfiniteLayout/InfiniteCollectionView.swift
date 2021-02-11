@@ -252,8 +252,12 @@ open class InfiniteCollectionView: UICollectionView {
     }
 
     public func indexPathForPreferredFocusedView(in collectionView: UICollectionView) -> IndexPath? {
-        guard let indexPath = lastFocusedIndexPath ?? delegateProxy.delegate?.indexPathForPreferredFocusedView?(in: collectionView),
-            collectionView.hasCellAtIndexPath(indexPath) else {
+        let preferredIndexPath = remembersLastFocusedIndexPath ? lastFocusedIndexPath : nil
+        guard
+            let indexPath = preferredIndexPath ??
+                delegateProxy.delegate?.indexPathForPreferredFocusedView?(in: collectionView),
+            collectionView.hasCellAtIndexPath(indexPath)
+        else {
             return nil
         }
         return indexPath
@@ -299,6 +303,16 @@ extension InfiniteCollectionView: UICollectionViewDataSource {
         return InfiniteDataSources.indexPath(from: infiniteIndexPath,
                                              numberOfSections: delegateNumberOfSections,
                                              numberOfItems: delegateNumberOfItems(in: infiniteIndexPath.section))
+    }
+    
+    public func closestIndexPathToLastFocusedIndexPath(for realIndexPath: IndexPath) -> IndexPath {
+        guard let lastFocusedIndexPath = lastFocusedIndexPath else { return realIndexPath }
+        return InfiniteDataSources.closestIndexPath(
+            realIndexPath,
+            to: lastFocusedIndexPath,
+            numberOfSections: delegateNumberOfSections,
+            numberOfItems: delegateNumberOfItems(in: realIndexPath.section)
+        )
     }
 
     public func numberOfSections(in collectionView: UICollectionView) -> Int {
