@@ -265,7 +265,7 @@ extension InfiniteCollectionView: UICollectionViewDataSource {
 
     private var delegateNumberOfSections: Int {
         guard let sections = dataSourceProxy.delegate.flatMap({ $0.numberOfSections?(in: self) ?? 1 }) else {
-            fatalError("collectionView dataSource is required")
+            return 0
         }
         return sections
     }
